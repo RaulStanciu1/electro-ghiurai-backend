@@ -29,6 +29,8 @@ public class Customer {
     private Date dateOfBirth;
     @Column(name="country_of_origin")
     private String CountryOfOrigin;
-    @Column(name="e-mail")
+    @Column(name= "email")
     private String email;
+    @Column(name="image")
+    private byte[] image;
 }

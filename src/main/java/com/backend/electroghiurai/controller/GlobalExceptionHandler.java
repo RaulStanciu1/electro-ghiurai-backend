@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
     @ExceptionHandler(IncorrectPasswordException.class)
-    public ResponseEntity<String> handleIncorrectPasswordExcetpion(IncorrectPasswordException e){
+    public ResponseEntity<String> handleIncorrectPasswordException(IncorrectPasswordException e){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
     }
 }
