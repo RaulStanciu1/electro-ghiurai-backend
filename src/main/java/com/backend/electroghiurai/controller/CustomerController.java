@@ -1,9 +1,6 @@
 package com.backend.electroghiurai.controller;
 
-import com.backend.electroghiurai.entity.Customer;
-import com.backend.electroghiurai.entity.Feedback;
-import com.backend.electroghiurai.entity.Order;
-import com.backend.electroghiurai.entity.Remark;
+import com.backend.electroghiurai.entity.*;
 import com.backend.electroghiurai.service.CustomerService;
 import com.backend.electroghiurai.service.FeedbackService;
 import com.backend.electroghiurai.service.OrderService;
@@ -13,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +55,7 @@ public class CustomerController {
         return new ResponseEntity<>(record,HttpStatus.CREATED);
     }
     @PostMapping("/order/remark/{id}")
-    public ResponseEntity<String> sendRemark(@RequestBody Remark remark,@PathVariable Long id){
+    public ResponseEntity<String> sendRemark(@RequestBody List<Remark> remark, @PathVariable Long id){
         remarkService.sendRemark(remark,id);
         return new ResponseEntity<>("Remark sent successfully.",HttpStatus.CREATED);
     }
@@ -79,4 +77,12 @@ public class CustomerController {
         List<Remark> records = remarkService.getAllRemarks(id);
         return new ResponseEntity<>(records,HttpStatus.OK);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Customer> getCustomerInfo(@PathVariable Long id){
+        Customer record = customerService.getCustomerById(id);
+        return new ResponseEntity<>(record,HttpStatus.OK);
+    }
+
+
 }

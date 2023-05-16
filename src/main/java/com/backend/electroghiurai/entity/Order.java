@@ -26,7 +26,11 @@ public class Order {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "progress")
-    private Short progress;
+    @Column(name = "order_status")
+    private Long orderStatus;
+
+    @Column(name = "code")
+    @Lob
+    private byte[] code;
 
 }

@@ -36,4 +36,8 @@ public class CustomerService {
     private boolean usernameAlreadyExists(String username){
         return repository.findByUsername(username) != null;
     }
+
+    public Customer getCustomerById(Long id){
+        return repository.findByCustomerId(id);
+    }
 }

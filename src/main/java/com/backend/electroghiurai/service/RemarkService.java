@@ -11,9 +11,11 @@ import java.util.List;
 public class RemarkService {
     @Autowired
     private RemarkRepository repository;
-    public Remark sendRemark(Remark remark,Long orderId){
-        remark.setOrderId(orderId);
-        return repository.save(remark);
+    public void sendRemark(List<Remark> remark, Long orderId){
+        for(Remark r:remark){
+            r.setOrderId(orderId);
+        }
+        repository.saveAll(remark);
     }
 
     public List<Remark> getAllRemarks(Long orderId){
