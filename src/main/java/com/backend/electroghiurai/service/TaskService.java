@@ -57,6 +57,13 @@ public class TaskService {
         return taskRepository.save(completedTask);
     }
 
+    public byte[] getSpec(Long taskId) throws IOException{
+        Task oldTask = taskRepository.findByTaskNr(taskId);
+        InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(oldTask.getInternalOrder());
+        return internalOrder.getSpec();
+    }
+
+
     public Task uploadCode(Long taskId, MultipartFile codeFile) throws IOException{
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
@@ -65,6 +72,12 @@ public class TaskService {
         internalOrder.setCode(codeFile.getBytes());
         internalOrderRepository.save(internalOrder);
         return taskRepository.save(completedTask);
+    }
+
+    public byte[] getCode(Long taskId) throws IOException{
+        Task oldTask = taskRepository.findByTaskNr(taskId);
+        InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(oldTask.getInternalOrder());
+        return internalOrder.getCode();
     }
 
     public Task uploadFinalCode(Long taskId, MultipartFile codeFile) throws IOException{
