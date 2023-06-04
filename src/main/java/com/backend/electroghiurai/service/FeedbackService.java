@@ -10,7 +10,7 @@ public class FeedbackService {
     @Autowired
     private FeedbackRepository repository;
     public Feedback saveFeedback(Feedback feedback,Long customerId){
-        feedback.setCustomer(customerId);
+        feedback.setUser(customerId);
         return repository.save(feedback);
     }
 }

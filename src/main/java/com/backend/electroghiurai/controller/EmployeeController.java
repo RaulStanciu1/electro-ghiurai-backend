@@ -1,13 +1,12 @@
 package com.backend.electroghiurai.controller;
 
-import com.backend.electroghiurai.entity.Customer;
-import com.backend.electroghiurai.entity.Employee;
-import com.backend.electroghiurai.entity.InternalOrder;
+import com.backend.electroghiurai.entity.Order;
+import com.backend.electroghiurai.entity.Remark;
 import com.backend.electroghiurai.entity.Task;
-import com.backend.electroghiurai.service.EmployeeService;
+import com.backend.electroghiurai.service.OrderService;
+import com.backend.electroghiurai.service.RemarkService;
 import com.backend.electroghiurai.service.TaskService;
 import jakarta.transaction.Transactional;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -19,24 +18,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/emp")
 public class EmployeeController {
     private final TaskService taskService;
-    private final EmployeeService employeeService;
+    private final OrderService orderService;
+    private final RemarkService remarkService;
     @Autowired
-    public EmployeeController(TaskService taskService,EmployeeService employeeService){
+    public EmployeeController(TaskService taskService, OrderService orderService, RemarkService remarkService){
+        this.orderService=orderService;
         this.taskService=taskService;
-        this.employeeService = employeeService;
-    }
-    @PostMapping("/login")
-    public ResponseEntity<Employee> loginEmployee(@RequestBody Map<String,String> empData){
-        String username = empData.get("username");
-        String password = empData.get("password");
-        Employee loggedEmp = employeeService.getEmployee(username,password);
-        return new ResponseEntity<>(loggedEmp,HttpStatus.OK);
+        this.remarkService=remarkService;
     }
     @GetMapping("/tasks/{id}")
     public ResponseEntity<List<Task>> getAssignedTasks(@PathVariable Long id){
@@ -96,6 +89,20 @@ public class EmployeeController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/zip"))
                 .body(resource);
+    }
+
+    @GetMapping("/order-details/{id}")
+    @Transactional
+    public ResponseEntity<Order> getOrderByInternalOrder(@PathVariable Long id){
+        Order record = orderService.getOrder(id);
+        return new ResponseEntity<>(record,HttpStatus.OK);
+    }
+
+    @GetMapping("/order-remarks/{id}")
+    @Transactional
+    public ResponseEntity<List<Remark>> getOrderRemarksByInternalOrder(@PathVariable Long id){
+        List<Remark> records = remarkService.getAllRemarksByInternal(id);
+        return new ResponseEntity<>(records,HttpStatus.OK);
     }
 
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,44 +21,52 @@ public class TaskService {
         this.taskRepository=taskRepository;
         this.internalOrderRepository=internalOrderRepository;
     }
-    public void createFunctionTask(Long internalOrderId,Long functionDev){
+    public void createFunctionTask(Long internalOrderId, Long functionDev, Date deadline){
         Task newTask = new Task();
         newTask.setTaskStatus(1);
         newTask.setTaskType(1);
         newTask.setAssignedEmp(functionDev);
         newTask.setInternalOrder(internalOrderId);
+        newTask.setDeadline(deadline);
         taskRepository.save(newTask);
     }
-    public void createSoftwareTask(Long internalOrderId,Long softwareDev){
+    public void createSoftwareTask(Long internalOrderId,Long softwareDev, Date deadline){
         Task newTask = new Task();
         newTask.setTaskStatus(1);
         newTask.setTaskType(2);
         newTask.setAssignedEmp(softwareDev);
         newTask.setInternalOrder(internalOrderId);
+        newTask.setDeadline(deadline);
         taskRepository.save(newTask);
     }
-    public void createReviewTask(Long internalOrderId,Long reviewer){
+    public void createReviewTask(Long internalOrderId,Long reviewer, Date deadline){
         Task newTask = new Task();
         newTask.setTaskStatus(1);
         newTask.setTaskType(3);
         newTask.setInternalOrder(internalOrderId);
+        newTask.setDeadline(deadline);
         newTask.setAssignedEmp(reviewer);
+        taskRepository.save(newTask);
     }
     public List<Task> getCurrentlyAssignedTasks(Long empId){
         return taskRepository.findAllByAssignedEmpAndAndTaskStatus(empId,1);
     }
 
     public Task uploadSpec(Long taskId, MultipartFile specFile) throws IOException {
+        int status = 3;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
-        completedTask.setTaskStatus(2);
+        if(completedTask.getDeadline().before(new Date())){
+            status = 2;
+        }
+        completedTask.setTaskStatus(status);
         internalOrder.setInternalStatus((long)3);
         internalOrder.setSpec(specFile.getBytes());
         internalOrderRepository.save(internalOrder);
         return taskRepository.save(completedTask);
     }
 
-    public byte[] getSpec(Long taskId) throws IOException{
+    public byte[] getSpec(Long taskId){
         Task oldTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(oldTask.getInternalOrder());
         return internalOrder.getSpec();
@@ -65,25 +74,33 @@ public class TaskService {
 
 
     public Task uploadCode(Long taskId, MultipartFile codeFile) throws IOException{
+        int status = 3;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
-        completedTask.setTaskStatus(2);
+        if(completedTask.getDeadline().before(new Date())){
+            status = 2;
+        }
+        completedTask.setTaskStatus(status);
         internalOrder.setInternalStatus((long)5);
         internalOrder.setCode(codeFile.getBytes());
         internalOrderRepository.save(internalOrder);
         return taskRepository.save(completedTask);
     }
 
-    public byte[] getCode(Long taskId) throws IOException{
+    public byte[] getCode(Long taskId){
         Task oldTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(oldTask.getInternalOrder());
         return internalOrder.getCode();
     }
 
     public Task uploadFinalCode(Long taskId, MultipartFile codeFile) throws IOException{
+        int status = 3;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
-        completedTask.setTaskStatus(2);
+        if(completedTask.getDeadline().before(new Date())){
+            status = 2;
+        }
+        completedTask.setTaskStatus(status);
         internalOrder.setInternalStatus((long)7);
         internalOrder.setCode(codeFile.getBytes());
         internalOrderRepository.save(internalOrder);

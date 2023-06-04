@@ -12,16 +12,16 @@ import lombok.NoArgsConstructor;
 @Table(name = "feedback")
 public class Feedback {
     @Id
-    @Column(name="feedback_id")
+    @Column(name="f_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedbackId;
 
-    @Column(name="feedback_comment")
+    @Column(name="comment")
     private String comment;
 
     @Column(name="rating")
     private Long rating;
 
-    @Column(name = "customer")
-    private Long customer;
+    @Column(name = "user")
+    private Long user;
 }

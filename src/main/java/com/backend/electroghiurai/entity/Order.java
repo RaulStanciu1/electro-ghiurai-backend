@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_id")
+    @Column(name = "o_id")
     private Long orderId;
 
     @Column(name = "customer_id")
@@ -26,10 +26,10 @@ public class Order {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "order_status")
+    @Column(name = "o_status")
     private Long orderStatus;
 
-    @Column(name = "code")
+    @Column(name = "o_code")
     @Lob
     private byte[] code;
 

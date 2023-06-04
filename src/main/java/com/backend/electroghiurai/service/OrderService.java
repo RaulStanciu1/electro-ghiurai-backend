@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -60,27 +61,28 @@ public class OrderService {
         return internalOrderRepository.save(newOrder);
     }
     @Transactional
-    public void assignFunction(Long internalOrderId, Long functionDev){
+    public void assignFunction(Long internalOrderId, Long functionDev, Date deadline){
         InternalOrder record = internalOrderRepository.findByInternalOrder(internalOrderId);
         record.setFunctionDev(functionDev);
         record.setInternalStatus((long)2);
         internalOrderRepository.save(record);
-        taskService.createFunctionTask(internalOrderId,functionDev);
+        taskService.createFunctionTask(internalOrderId,functionDev,deadline);
     }
     @Transactional
-    public void assignSoftware(Long internalOrderId, Long softwareDev){
+    public void assignSoftware(Long internalOrderId, Long softwareDev, Date deadline){
         InternalOrder record = internalOrderRepository.findByInternalOrder(internalOrderId);
         record.setSoftwareDev(softwareDev);
-        record.setInternalStatus((long)3);
+        record.setInternalStatus((long)4);
         internalOrderRepository.save(record);
-        taskService.createSoftwareTask(internalOrderId,softwareDev);
+        taskService.createSoftwareTask(internalOrderId,softwareDev,deadline);
     }
     @Transactional
-    public void assignReviewer(Long internalOrderId, Long reviewer){
+    public void assignReviewer(Long internalOrderId, Long reviewer, Date deadline){
         InternalOrder record = internalOrderRepository.findByInternalOrder(internalOrderId);
         record.setReviewer(reviewer);
+        record.setInternalStatus((long)7);
         internalOrderRepository.save(record);
-        taskService.createReviewTask(internalOrderId,reviewer);
+        taskService.createReviewTask(internalOrderId,reviewer,deadline);
     }
 
     public Order finishOrder(Long orderId){
@@ -96,5 +98,15 @@ public class OrderService {
 
     public InternalOrder getInternalOrderByOrderId(Long id){
         return internalOrderRepository.findByOrderId(id);
+    }
+
+    public Order getOrder(Long internalOrderId){
+        InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(internalOrderId);
+        return ordersRepository.findByOrderId(internalOrder.getOrderId());
+    }
+
+    public byte[] getSpec(Long orderId){
+        InternalOrder internalOrder = internalOrderRepository.findByOrderId(orderId);
+        return internalOrder.getSpec();
     }
 }

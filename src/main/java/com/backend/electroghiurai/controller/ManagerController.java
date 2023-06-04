@@ -1,14 +1,16 @@
 package com.backend.electroghiurai.controller;
 
-import com.backend.electroghiurai.entity.Employee;
-import com.backend.electroghiurai.entity.EmployeeForm;
-import com.backend.electroghiurai.entity.InternalOrder;
-import com.backend.electroghiurai.entity.Order;
-import com.backend.electroghiurai.service.EmployeeService;
+import com.backend.electroghiurai.entity.*;
+import com.backend.electroghiurai.service.JsonUtils;
 import com.backend.electroghiurai.service.OrderService;
+import com.backend.electroghiurai.service.UserService;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,36 +18,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/mng")
 public class ManagerController {
-    private final EmployeeService employeeService;
+    private final UserService userService;
     private final OrderService orderService;
     @Autowired
-    public ManagerController(EmployeeService employeeService, OrderService orderService){
-            this.employeeService=employeeService;
+    public ManagerController(UserService userService, OrderService orderService){
+            this.userService = userService;
             this.orderService = orderService;
     }
-    @PostMapping("/register")
-    public ResponseEntity<Employee> registerNewEmployee(@RequestBody Employee emp){
-        Employee record = employeeService.registerNewEmployee(emp);
-        return new ResponseEntity<>(record, HttpStatus.CREATED);
-    }
-    @PostMapping("/login")
-    public ResponseEntity<Employee> loginEmployee(@RequestBody Map<String,String> empData){
-        String username = empData.get("username");
-        String password = empData.get("password");
-        Employee loggedEmp = employeeService.getEmployee(username,password);
-        return new ResponseEntity<>(loggedEmp,HttpStatus.OK);
-    }
-
-    @PostMapping("/new")
-    public ResponseEntity<Employee> createNewEmployee(@RequestBody EmployeeForm empForm){
-        Employee newEmp = employeeService.generateNewEmployee(empForm);
+    @PostMapping("/new-emp")
+    public ResponseEntity<User> createNewEmployee(@RequestBody EmployeeForm empForm){
+        User newEmp = userService.generateNewEmployee(empForm);
         return new ResponseEntity<>(newEmp,HttpStatus.CREATED);
     }
 
@@ -71,28 +64,38 @@ public class ManagerController {
         return new ResponseEntity<>(record,HttpStatus.ACCEPTED);
     }
     @GetMapping("/junior")
-    public ResponseEntity<List<Employee>> getJuniorEmployees(){
-        List<Employee> records = employeeService.getAllJuniors();
+    public ResponseEntity<List<User>> getJuniorEmployees(){
+        List<User> records = userService.getJuniorDevelopers();
         return new ResponseEntity<>(records,HttpStatus.OK);
     }
     @GetMapping("/senior")
-    public ResponseEntity<List<Employee>> getSeniorEmployees(){
-        List<Employee> records = employeeService.getAllSeniors();
+    public ResponseEntity<List<User>> getSeniorEmployees(){
+        List<User> records = userService.getSeniorDevelopers();
         return new ResponseEntity<>(records,HttpStatus.OK);
     }
+
+    @GetMapping("/engineer")
+    @Transactional
+    public ResponseEntity<List<User>> getEmployees(){
+        List<User> recordsJunior = userService.getJuniorDevelopers();
+        List<User> recordsSenior = userService.getSeniorDevelopers();
+        List<User> recordsEmployee = new ArrayList<>(recordsJunior);
+        recordsEmployee.addAll(recordsSenior);
+        return new ResponseEntity<>(recordsEmployee,HttpStatus.OK);
+    }
     @PostMapping ("/order/{id}/assign/function/{function}")
-    public ResponseEntity<String> assignFunctionDev(@PathVariable Long id,@PathVariable Long function){
-        orderService.assignFunction(id,function);
+    public ResponseEntity<String> assignFunctionDev(@PathVariable Long id, @PathVariable Long function, @RequestBody Map<String, Date> deadline){
+        orderService.assignFunction(id,function,deadline.get("deadline"));
         return new ResponseEntity<>("Function assigned.",HttpStatus.OK);
     }
     @PostMapping("/order/{id}/assign/software/{software}")
-    public ResponseEntity<String> assignSoftwareDev(@PathVariable Long id,@PathVariable Long software){
-        orderService.assignSoftware(id,software);
+    public ResponseEntity<String> assignSoftwareDev(@PathVariable Long id,@PathVariable Long software, @RequestBody Map<String,Date> deadline){
+        orderService.assignSoftware(id,software,deadline.get("deadline"));
         return new ResponseEntity<>("Software assigned.",HttpStatus.OK);
     }
     @PostMapping("/order/{id}/assign/reviewer/{reviewer}")
-    public ResponseEntity<String> assignReviewer(@PathVariable Long id,@PathVariable Long reviewer){
-        orderService.assignReviewer(id,reviewer);
+    public ResponseEntity<String> assignReviewer(@PathVariable Long id,@PathVariable Long reviewer,@RequestBody Map<String,Date> deadline){
+        orderService.assignReviewer(id,reviewer,deadline.get("deadline"));
         return new ResponseEntity<>("Reviewer assigned.",HttpStatus.OK);
     }
     @GetMapping("/order/internal/{id}")
@@ -107,7 +110,7 @@ public class ManagerController {
         Order record = orderService.finishOrder(id);
         return new ResponseEntity<>(record,HttpStatus.OK);
     }
-    @GetMapping("/code/{id}")
+    @GetMapping("/download/code/{id}")
     public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long id){
         Order record = orderService.getOrderById(id);
         byte[] bytes = record.getCode();
@@ -118,5 +121,52 @@ public class ManagerController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/zip"))
                 .body(resource);
+    }
+    @GetMapping("/download/spec/{id}")
+    public ResponseEntity<ByteArrayResource> downloadSpec(@PathVariable Long id) {
+        byte[] specBytes = orderService.getSpec(id);
+        ByteArrayResource resource = new ByteArrayResource(specBytes);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=order-spec.pdf");
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resource);
+    }
+
+    @GetMapping("/report/customer")
+    public ResponseEntity<String> getCustomerReport(){
+        return new ResponseEntity<>(userService.getCustomerReport(),HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/report/customer/download", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<InputStreamResource> downloadCustomerReport() throws Exception {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        Document report = new Document();
+        PdfWriter.getInstance(report,outputStream);
+
+        report.open();
+        report.addTitle("Electroghiurai Customer Report");
+        report.add(new Paragraph("First Document"));
+        CustomerReport customerReport = JsonUtils.convertJsonToObject(userService.getCustomerReport(),CustomerReport.class);
+        CustomerReportCountry top3Countries = JsonUtils.convertJsonToObject(customerReport.getTop_3_countries(),CustomerReportCountry.class);
+        report.close();
+
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "inline; filename=customer_report.pdf");
+
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(inputStream));
+    }
+
+    @GetMapping("/report/employee")
+    public ResponseEntity<String> getEmployeeReport(){
+        return new ResponseEntity<>(userService.getEmployeeReport(),HttpStatus.OK);
     }
 }

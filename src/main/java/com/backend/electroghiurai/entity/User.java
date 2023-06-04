@@ -8,27 +8,31 @@ import lombok.NoArgsConstructor;
 import java.sql.Date;
 
 @Entity
-@Table(name="customer")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+@Table(name= "users")
+public class User {
     @Id
-    @Column(name="customer_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long customerId;
+    @Column(name= "u_id")
+    private Long userId;
     @Column(name="username")
     private String username;
+    @Column(name="email")
+    private String email;
     @Column(name="password")
     private String password;
     @Column(name="first_name")
     private String firstName;
     @Column(name="last_name")
     private String lastName;
+    @Column(name="position")
+    private Integer position;
+    @Column(name="country")
+    private String country;
     @Column(name="date_of_birth")
     private Date dateOfBirth;
-    @Column(name="country_of_origin")
-    private String CountryOfOrigin;
-    @Column(name= "email")
-    private String email;
+    @Column(name = "profile_pic")
+    private byte[] profilePic;
 }

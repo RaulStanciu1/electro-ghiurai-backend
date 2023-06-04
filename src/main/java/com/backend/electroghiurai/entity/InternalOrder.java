@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Blob;
 
 @Entity
 @Table(name = "INTERNAL_ORDER")
@@ -15,11 +14,11 @@ import java.sql.Blob;
 public class InternalOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="internal_order")
+    @Column(name="io_id")
     private Long internalOrder;
     @Column(name="order_id")
     private Long orderId;
-    @Column(name = "internal_status")
+    @Column(name = "io_status")
     private Long internalStatus;
     @Column(name="spec")
     @Lob
