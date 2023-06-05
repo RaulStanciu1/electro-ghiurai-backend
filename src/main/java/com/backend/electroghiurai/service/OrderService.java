@@ -80,7 +80,7 @@ public class OrderService {
     public void assignReviewer(Long internalOrderId, Long reviewer, Date deadline){
         InternalOrder record = internalOrderRepository.findByInternalOrder(internalOrderId);
         record.setReviewer(reviewer);
-        record.setInternalStatus((long)7);
+        record.setInternalStatus((long)6);
         internalOrderRepository.save(record);
         taskService.createReviewTask(internalOrderId,reviewer,deadline);
     }
@@ -91,9 +91,10 @@ public class OrderService {
         return ordersRepository.save(record);
     }
 
-    public void addCode(Long orderId, MultipartFile code) throws IOException {
+    public void addCode(Long orderId, byte[] finalCode) throws IOException {
         Order record = ordersRepository.findByOrderId(orderId);
-        record.setCode(code.getBytes());
+        record.setCode(finalCode);
+        ordersRepository.save(record);
     }
 
     public InternalOrder getInternalOrderByOrderId(Long id){

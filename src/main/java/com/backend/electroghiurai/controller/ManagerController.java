@@ -1,25 +1,17 @@
 package com.backend.electroghiurai.controller;
 
 import com.backend.electroghiurai.entity.*;
-import com.backend.electroghiurai.service.JsonUtils;
 import com.backend.electroghiurai.service.OrderService;
 import com.backend.electroghiurai.service.UserService;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -105,8 +97,9 @@ public class ManagerController {
     }
     @PostMapping("/finish/order/{id}")
     @Transactional
-    public ResponseEntity<Order> finishOrder(@RequestParam("file") MultipartFile code, @PathVariable Long id) throws IOException {
-        orderService.addCode(id,code);
+    public ResponseEntity<Order> finishOrder(@PathVariable Long id) throws IOException {
+        byte[] finalCode = orderService.getInternalOrderByOrderId(id).getCode();
+        orderService.addCode(id,finalCode);
         Order record = orderService.finishOrder(id);
         return new ResponseEntity<>(record,HttpStatus.OK);
     }
@@ -138,31 +131,9 @@ public class ManagerController {
     public ResponseEntity<String> getCustomerReport(){
         return new ResponseEntity<>(userService.getCustomerReport(),HttpStatus.OK);
     }
-
-    @GetMapping(value = "/report/customer/download", produces = MediaType.APPLICATION_PDF_VALUE)
-    public ResponseEntity<InputStreamResource> downloadCustomerReport() throws Exception {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        Document report = new Document();
-        PdfWriter.getInstance(report,outputStream);
-
-        report.open();
-        report.addTitle("Electroghiurai Customer Report");
-        report.add(new Paragraph("First Document"));
-        CustomerReport customerReport = JsonUtils.convertJsonToObject(userService.getCustomerReport(),CustomerReport.class);
-        CustomerReportCountry top3Countries = JsonUtils.convertJsonToObject(customerReport.getTop_3_countries(),CustomerReportCountry.class);
-        report.close();
-
-
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=customer_report.pdf");
-
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_PDF)
-                .body(new InputStreamResource(inputStream));
+    @GetMapping("/get/employee/{id}")
+    public ResponseEntity<User> getEmployeeById(@PathVariable Long id){
+        return new ResponseEntity<>(userService.getUserById(id),HttpStatus.OK);
     }
 
     @GetMapping("/report/employee")

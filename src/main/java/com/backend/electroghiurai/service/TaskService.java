@@ -93,16 +93,20 @@ public class TaskService {
         return internalOrder.getCode();
     }
 
-    public Task uploadFinalCode(Long taskId, MultipartFile codeFile) throws IOException{
+    public Task declareReviewStatus(Long taskId, Integer reviewStatus){
         int status = 3;
+        long tmpReviewStatus = 7;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
         if(completedTask.getDeadline().before(new Date())){
             status = 2;
         }
         completedTask.setTaskStatus(status);
-        internalOrder.setInternalStatus((long)7);
-        internalOrder.setCode(codeFile.getBytes());
+        switch (reviewStatus) {
+            case 2 -> tmpReviewStatus = 8;
+            case 3 -> tmpReviewStatus = 9;
+        }
+        internalOrder.setInternalStatus(tmpReviewStatus);
         internalOrderRepository.save(internalOrder);
         return taskRepository.save(completedTask);
     }

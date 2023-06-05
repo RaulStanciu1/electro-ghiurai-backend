@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/emp")
@@ -50,9 +51,8 @@ public class EmployeeController {
     }
 
     @PostMapping("/review/{id}")
-    @Transactional
-    public ResponseEntity<Task> uploadFinalCode(@PathVariable Long id, @RequestParam("file") MultipartFile finalCode) throws IOException{
-        Task record = taskService.uploadFinalCode(id, finalCode);
+    public ResponseEntity<Task>declareReviewStatus(@PathVariable Long id, @RequestBody Map<String,Integer> reviewStatus){
+        Task record = taskService.declareReviewStatus(id,reviewStatus.get("status"));
         return new ResponseEntity<>(record,HttpStatus.OK);
     }
 
@@ -74,17 +74,6 @@ public class EmployeeController {
         ByteArrayResource resource = new ByteArrayResource(specBytes);
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=order-code.zip");
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentType(MediaType.parseMediaType("application/zip"))
-                .body(resource);
-    }
-    @GetMapping("/download/final-code/{id}")
-    public ResponseEntity<ByteArrayResource> downloadFinalCode(@PathVariable Long id) throws IOException {
-        byte[] specBytes = taskService.getCode(id);
-        ByteArrayResource resource = new ByteArrayResource(specBytes);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=order-final-code.zip");
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/zip"))

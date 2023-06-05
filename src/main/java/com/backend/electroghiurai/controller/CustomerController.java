@@ -1,6 +1,7 @@
 package com.backend.electroghiurai.controller;
 
 import com.backend.electroghiurai.entity.*;
+import com.backend.electroghiurai.service.FeedbackService;
 import com.backend.electroghiurai.service.OrderService;
 import com.backend.electroghiurai.service.RemarkService;
 import com.backend.electroghiurai.service.UserService;
@@ -18,11 +19,13 @@ public class CustomerController {
     private final UserService userService;
     private final OrderService orderService;
     private final RemarkService remarkService;
+    private final FeedbackService feedbackService;
     @Autowired
-    public CustomerController(UserService u,OrderService o, RemarkService r){
+    public CustomerController(UserService u, OrderService o, RemarkService r, FeedbackService f){
         this.userService = u;
         this.orderService = o;
         this.remarkService = r;
+        this.feedbackService = f;
     }
 
     @PostMapping("/order/{id}")
@@ -57,6 +60,12 @@ public class CustomerController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getCustomerInfo(@PathVariable Long id){
         User record = userService.getUserById(id);
+        return new ResponseEntity<>(record,HttpStatus.OK);
+    }
+
+    @PostMapping("/feedback/{id}")
+    public ResponseEntity<Feedback> sendFeedback(@PathVariable Long id, @RequestBody Feedback feedback){
+        Feedback record = feedbackService.saveFeedback(feedback,id);
         return new ResponseEntity<>(record,HttpStatus.OK);
     }
 

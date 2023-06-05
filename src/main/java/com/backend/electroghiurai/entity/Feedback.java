@@ -16,12 +16,12 @@ public class Feedback {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long feedbackId;
 
-    @Column(name="comment")
-    private String comment;
+    @Column(name= "description")
+    private String description;
 
     @Column(name="rating")
     private Long rating;
 
-    @Column(name = "user")
-    private Long user;
+    @Column(name = "user_id")
+    private Long userId;
 }
