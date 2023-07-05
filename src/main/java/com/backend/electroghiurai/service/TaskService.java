@@ -53,11 +53,11 @@ public class TaskService {
     }
 
     public Task uploadSpec(Long taskId, MultipartFile specFile) throws IOException {
-        int status = 3;
+        int status = 2;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
         if(completedTask.getDeadline().before(new Date())){
-            status = 2;
+            status = 3;
         }
         completedTask.setTaskStatus(status);
         internalOrder.setInternalStatus((long)3);
@@ -74,11 +74,11 @@ public class TaskService {
 
 
     public Task uploadCode(Long taskId, MultipartFile codeFile) throws IOException{
-        int status = 3;
+        int status = 2;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
         if(completedTask.getDeadline().before(new Date())){
-            status = 2;
+            status = 3;
         }
         completedTask.setTaskStatus(status);
         internalOrder.setInternalStatus((long)5);
@@ -94,12 +94,12 @@ public class TaskService {
     }
 
     public Task declareReviewStatus(Long taskId, Integer reviewStatus){
-        int status = 3;
+        int status = 2;
         long tmpReviewStatus = 7;
         Task completedTask = taskRepository.findByTaskNr(taskId);
         InternalOrder internalOrder = internalOrderRepository.findByInternalOrder(completedTask.getInternalOrder());
         if(completedTask.getDeadline().before(new Date())){
-            status = 2;
+            status = 3;
         }
         completedTask.setTaskStatus(status);
         switch (reviewStatus) {
