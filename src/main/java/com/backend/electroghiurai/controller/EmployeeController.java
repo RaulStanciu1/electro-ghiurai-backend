@@ -37,6 +37,11 @@ public class EmployeeController {
         List<Task> records = taskService.getCurrentlyAssignedTasks(id);
         return new ResponseEntity<>(records, HttpStatus.OK);
     }
+    @GetMapping("/completed-tasks/{id}")
+    public ResponseEntity<List<Task>> getComepletedTasks(@PathVariable Long id){
+        List<Task> records = taskService.getCompletedTasks(id);
+        return new ResponseEntity<>(records, HttpStatus.OK);
+    }
     @PostMapping("/spec/{id}")
     @Transactional
     public ResponseEntity<Task> uploadSpec(@PathVariable Long id, @RequestParam("file")MultipartFile spec) throws IOException {

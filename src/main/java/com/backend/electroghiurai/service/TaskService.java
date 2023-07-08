@@ -52,6 +52,10 @@ public class TaskService {
         return taskRepository.findAllByAssignedEmpAndAndTaskStatus(empId,1);
     }
 
+    public List<Task> getCompletedTasks(Long empId){
+        return taskRepository.findAllByAssignedEmpAndAndTaskStatusGreaterThan(empId,1);
+    }
+
     public Task uploadSpec(Long taskId, MultipartFile specFile) throws IOException {
         int status = 2;
         Task completedTask = taskRepository.findByTaskNr(taskId);

@@ -140,4 +140,9 @@ public class ManagerController {
     public ResponseEntity<String> getEmployeeReport(){
         return new ResponseEntity<>(userService.getEmployeeReport(),HttpStatus.OK);
     }
+
+    @GetMapping("/get/employee/{id}/performance")
+    public ResponseEntity<EmployeeInfo> getEmployeePerformance(@PathVariable Long id){
+        return new ResponseEntity<>(userService.getEmployeePerformance(id),HttpStatus.OK);
+    }
 }

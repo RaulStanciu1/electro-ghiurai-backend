@@ -18,4 +18,5 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query(value = "select EMPLOYEE_REPORT.GENERATE() from dual",nativeQuery = true)
     String generateEmployeeReport();
+
 }

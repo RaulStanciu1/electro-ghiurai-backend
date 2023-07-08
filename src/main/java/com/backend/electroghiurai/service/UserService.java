@@ -1,10 +1,11 @@
 package com.backend.electroghiurai.service;
 
 import com.backend.electroghiurai.entity.EmployeeForm;
-import com.backend.electroghiurai.entity.Feedback;
+import com.backend.electroghiurai.entity.EmployeeInfo;
 import com.backend.electroghiurai.entity.User;
 import com.backend.electroghiurai.exception.IncorrectPasswordException;
 import com.backend.electroghiurai.exception.UsernameExistsException;
+import com.backend.electroghiurai.repo.TaskRepository;
 import com.backend.electroghiurai.repo.UserRepository;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,12 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private final TaskRepository taskRepository;
     @Autowired
-    public UserService(UserRepository repo,EmailService emailService){
+    public UserService(UserRepository repo,EmailService emailService,TaskRepository taskRepository){
         this.userRepository=repo;
         this.emailService=emailService;
+        this.taskRepository=taskRepository;
     }
     public User registerUser(User user){
         if(usernameAlreadyExists(user.getUsername())){
@@ -100,6 +103,19 @@ public class UserService {
         User record = userRepository.findByUserId(id);
         record.setProfilePic(image.getBytes());
         return userRepository.save(record);
+    }
+
+    public EmployeeInfo getEmployeePerformance(Long id){
+        User employee = userRepository.findByUserId(id);
+        Integer totalTasks = taskRepository.getTotalTasks(id);
+        Integer totalTasksAssigned = taskRepository.getTotalTasksAssigned(id);
+        Integer totalTasksCompleted = taskRepository.getTotalTasksCompleted(id);
+        Integer totalTasksCompletedInTime = taskRepository.getTotalTasksCompletedInTime(id);
+        Integer totalTasksCompletedLate = taskRepository.getTotalTasksCompletedLate(id);
+        Float performancePoints = EmployeeInfo.calcPerformancePoints(totalTasks, totalTasksAssigned, totalTasksCompleted, totalTasksCompletedInTime, totalTasksCompletedLate);
+        return new EmployeeInfo(employee.getUserId(),employee.getFirstName(),employee.getLastName(),
+                employee.getEmail(),employee.getCountry(),employee.getPosition(),totalTasks,totalTasksAssigned,
+                totalTasksCompleted,totalTasksCompletedInTime,totalTasksCompletedLate,performancePoints);
     }
 
 
