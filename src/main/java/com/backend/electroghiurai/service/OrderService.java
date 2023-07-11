@@ -2,6 +2,7 @@ package com.backend.electroghiurai.service;
 
 import com.backend.electroghiurai.entity.InternalOrder;
 import com.backend.electroghiurai.entity.Order;
+import com.backend.electroghiurai.entity.OrderChart;
 import com.backend.electroghiurai.repo.InternalOrderRepository;
 import com.backend.electroghiurai.repo.OrdersRepository;
 import jakarta.transaction.Transactional;
@@ -109,5 +110,12 @@ public class OrderService {
     public byte[] getSpec(Long orderId){
         InternalOrder internalOrder = internalOrderRepository.findByOrderId(orderId);
         return internalOrder.getSpec();
+    }
+
+    public OrderChart getOrderChart(){
+        Long pendingOrders = ordersRepository.getPendingOrderCount();
+        Long completedOrders = ordersRepository.getCompletedOrderCount();
+        Long ordersInProgress = ordersRepository.getOrderInProgressCount();
+        return new OrderChart(pendingOrders,ordersInProgress,completedOrders);
     }
 }

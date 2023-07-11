@@ -3,6 +3,7 @@ package com.backend.electroghiurai.service;
 import com.backend.electroghiurai.entity.EmployeeForm;
 import com.backend.electroghiurai.entity.EmployeeInfo;
 import com.backend.electroghiurai.entity.User;
+import com.backend.electroghiurai.entity.UserChart;
 import com.backend.electroghiurai.exception.IncorrectPasswordException;
 import com.backend.electroghiurai.exception.UsernameExistsException;
 import com.backend.electroghiurai.repo.TaskRepository;
@@ -99,12 +100,6 @@ public class UserService {
         return userRepository.generateEmployeeReport();
     }
 
-    public User updateProfilePic(Long id,MultipartFile image) throws IOException {
-        User record = userRepository.findByUserId(id);
-        record.setProfilePic(image.getBytes());
-        return userRepository.save(record);
-    }
-
     public EmployeeInfo getEmployeePerformance(Long id){
         User employee = userRepository.findByUserId(id);
         Integer totalTasks = taskRepository.getTotalTasks(id);
@@ -118,5 +113,37 @@ public class UserService {
                 totalTasksCompleted,totalTasksCompletedInTime,totalTasksCompletedLate,performancePoints);
     }
 
+    public User promoteEmployee(Long id){
+        User employee = userRepository.findByUserId(id);
+        if(employee.getPosition() == 2){
+            employee.setPosition(3);
+        }
+        return userRepository.save(employee);
+    }
+    public User demoteEmployee(Long id){
+        User employee = userRepository.findByUserId(id);
+        if(employee.getPosition() == 3){
+            employee.setPosition(2);
+        }
+        return userRepository.save(employee);
+    }
+
+    public UserChart getUserChart(){
+        Long customer = userRepository.getCustomerCount();
+        Long junior = userRepository.getJuniorCount();
+        Long senior = userRepository.getSeniorCount();
+        return new UserChart(customer,junior,senior);
+    }
+
+    public User uploadProfilePic(Long id,MultipartFile image) throws IOException{
+        User record = userRepository.findByUserId(id);
+        record.setProfilePic(image.getBytes());
+        return userRepository.save(record);
+    }
+
+    public byte[] getProfilePic(Long id){
+        User record = userRepository.findByUserId(id);
+        return record.getProfilePic();
+    }
 
 }

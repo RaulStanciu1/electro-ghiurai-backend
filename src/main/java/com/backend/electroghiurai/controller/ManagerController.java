@@ -145,4 +145,19 @@ public class ManagerController {
     public ResponseEntity<EmployeeInfo> getEmployeePerformance(@PathVariable Long id){
         return new ResponseEntity<>(userService.getEmployeePerformance(id),HttpStatus.OK);
     }
+    @PostMapping("/promote/employee/{id}")
+    public ResponseEntity<User>promoteEmployee(@PathVariable Long id){
+        return new ResponseEntity<>(userService.promoteEmployee(id),HttpStatus.OK);
+    }
+    @PostMapping("/demote/employee/{id}")
+    public ResponseEntity<User>demoteEmployee(@PathVariable Long id){
+        return new ResponseEntity<>(userService.demoteEmployee(id),HttpStatus.OK);
+    }
+
+    @GetMapping("/chart")
+    public ResponseEntity<Chart>getChart(){
+        UserChart userChart = userService.getUserChart();
+        OrderChart orderChart = orderService.getOrderChart();
+        return new ResponseEntity<>(new Chart(orderChart, userChart),HttpStatus.OK);
+    }
 }

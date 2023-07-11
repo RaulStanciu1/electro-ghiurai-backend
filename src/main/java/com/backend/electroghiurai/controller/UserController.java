@@ -31,11 +31,6 @@ public class UserController {
         User record = userService.registerUser(customer);
         return new ResponseEntity<>(record, HttpStatus.CREATED);
     }
-    @PostMapping("/register/pic/{id}")
-    public ResponseEntity<User> uploadProfilePic(@PathVariable Long id,@RequestParam("file")MultipartFile image) throws IOException {
-        User record = userService.updateProfilePic(id,image);
-        return new ResponseEntity<>(record,HttpStatus.OK);
-    }
     @PostMapping("/login")
     public ResponseEntity<User> loginCustomer(@RequestBody Map<String,String> userData){
         String username = userData.get("username");
@@ -47,5 +42,15 @@ public class UserController {
     @GetMapping("/feedback")
     public ResponseEntity<List<Feedback>> getTopFeedback(){
         return new ResponseEntity<>(feedbackService.getBestFeedback(),HttpStatus.OK);
+    }
+
+    @PostMapping("/profile-pic/{id}")
+    public ResponseEntity<User> uploadProfilePic(@PathVariable Long id, @RequestParam("profilePic") MultipartFile image)throws IOException{
+        return new ResponseEntity<>(userService.uploadProfilePic(id,image),HttpStatus.OK);
+    }
+
+    @GetMapping("/profile-pic/{id}")
+    public ResponseEntity<byte[]> getProfilePic(@PathVariable Long id){
+        return new ResponseEntity<>(userService.getProfilePic(id),HttpStatus.OK);
     }
 }

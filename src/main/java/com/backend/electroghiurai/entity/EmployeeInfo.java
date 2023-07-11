@@ -45,10 +45,10 @@ public class EmployeeInfo {
         performancePoints += totalTasksAssigned*TASKS_ASSIGNED_MULTIPLIER;
         performancePoints += tasksCompletedInTime*TASKS_COMPLETED_IN_TIME_MULTIPLIER;
         performancePoints += tasksCompletedLate*TASKS_COMPLETED_LATE_MULTIPLIER;
-        if((float) totalTasksCompleted /totalTasks > 0.8f){
+        if(totalTasks!=0 && (float) totalTasksCompleted /totalTasks > 0.8f){
             performancePoints += 2f;
         }
-        if((float) totalTasksCompleted / tasksCompletedInTime > 0.8f){
+        if(tasksCompletedInTime!=0 && (float) totalTasksCompleted / tasksCompletedInTime > 0.8f){
             performancePoints +=2f;
         }
         return performancePoints;

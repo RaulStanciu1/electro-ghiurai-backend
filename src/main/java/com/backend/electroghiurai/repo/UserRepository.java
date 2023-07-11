@@ -19,4 +19,12 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query(value = "select EMPLOYEE_REPORT.GENERATE() from dual",nativeQuery = true)
     String generateEmployeeReport();
 
+    @Query(value = "select COUNT(*) FROM USERS WHERE POSITION = 1",nativeQuery = true)
+    Long getCustomerCount();
+
+    @Query(value = "select COUNT(*) FROM USERS WHERE POSITION = 2", nativeQuery = true)
+    Long getJuniorCount();
+
+    @Query(value = "select COUNT(*) FROM USERS WHERE POSITION = 3",nativeQuery = true)
+    Long getSeniorCount();
 }
